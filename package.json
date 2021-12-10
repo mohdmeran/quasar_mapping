@@ -6,12 +6,15 @@
   "author": "mohdmeran <blackchoco3@gmail.com>",
   "private": true,
   "scripts": {
+    "dev": "quasar dev",
     "lint": "eslint --ext .js,.vue ./",
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
+    "cordova-plugin-wifiwizard2": "^3.1.1",
     "core-js": "^3.6.5",
+    "firebase": "^9.0.1",
     "leaflet": "^1.7.1",
     "pathfinding": "^0.4.18",
     "quasar": "^2.0.0"

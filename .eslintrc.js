@@ -68,6 +68,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'import/prefer-default-export': 'off',
     'prefer-promise-reject-errors': 'off',
+    'linebreak-style': ["error", "windows"],
 
 
     // allow debugger during development only
