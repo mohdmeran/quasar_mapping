@@ -4,7 +4,7 @@
       @click="getLat"
       :interactive="true"
       :url="floorplan"
-      :bounds="[[0, 0], [657, 441]]"></l-image-overlay>
+      :bounds="[[0, 0], [708, 1993]]"></l-image-overlay>
     <l-circle
         v-for="item in mapped.items" :key="item"
         :radius="10"
@@ -15,6 +15,15 @@
         :fillOpacity="1"
       >
     </l-circle>
+    <l-image-overlay
+      :interactive="true"
+      v-for="store in stores"
+      :key="store.store_name"
+      :url="store.img_url"
+      :bounds="[
+        [store.bounds[0]],
+        [store.bounds[1]]
+      ]"></l-image-overlay>
   </l-map>
   <div v-if="scan.isScanning">
     Scanning...
@@ -56,14 +65,12 @@
 </template>
 
 <script>
-/* eslint-disable */
 import 'leaflet/dist/leaflet.css';
 import { CRS } from 'leaflet';
 import {
   LMap, LImageOverlay, LCircle,
 } from '@vue-leaflet/vue-leaflet';
-// eslint-disable-next-line no-unused-vars
-import db from 'src/boot/firebase';
+import firebase from 'src/boot/firebase';
 
 export default {
   components: {
@@ -91,25 +98,54 @@ export default {
       mapped: {
         items: [],
       },
+      stores: [],
     };
   },
+  mounted() {
+    firebase.db.collection('LG_Lot').onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          let storeInfo = {
+            store_name: '',
+            lat: '',
+            lng: '',
+            img_url: '',
+            type: '',
+            lot: '',
+            bounds: [],
+          };
+
+          storeInfo.lot = change.doc.id;
+          storeInfo = Object.assign(storeInfo, change.doc.data());
+          storeInfo.bounds = JSON.parse(storeInfo.bounds);
+
+          // get store data
+          if (storeInfo.store_ref) {
+            storeInfo.store_ref.get().then((storeDoc) => {
+              storeInfo = Object.assign(storeInfo, storeDoc.data());
+              this.stores.push(storeInfo);
+            });
+          }
+        }
+      });
+    });
+  },
   created() {
-    db.collection('AP').onSnapshot((snapshot) => {
+    firebase.db.collection('AP').onSnapshot((snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added') {
           // eslint-disable-next-line no-console
-          console.log('New city: ', change.doc.data());
           this.mapped.items.push(change.doc.data());
         }
         if (change.type === 'modified') {
           this.success = change.doc.data();
         }
         if (change.type === 'removed') {
-          // eslint-disable-next-line no-console
-          console.log('Removed city: ', change.doc.data());
+          // eslint-disable-next-line arrow-body-style
           this.mapped.items = this.mapped.items.filter((item) => {
+            // eslint-disable-next-line max-len
             return !(item.location.x === change.doc.data().location.x && item.location.y === change.doc.data().location.y);
-          })
+          });
         }
       });
     });
@@ -128,7 +164,7 @@ export default {
       this.scan.complete = true;
     },
     onSave() {
-      db.collection('AP').add({
+      firebase.db.collection('AP').add({
         location: {
           x: this.scan.pos.x,
           y: this.scan.pos.y,
@@ -157,7 +193,7 @@ export default {
   computed: {
     floorplan() {
       // eslint-disable-next-line global-require
-      return require('../assets/hillpark-floorplan.svg');
+      return require('../assets/LgFloor_path.svg');
     },
   },
 };

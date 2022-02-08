@@ -25,7 +25,18 @@
         :bounds="[
             store.bounds[0],
             store.bounds[1]
-        ]"></l-image-overlay>
+        ]"
+        @click="onClickImage"></l-image-overlay>
+        <l-circle
+        v-for="store in stores"
+        :key="store.store_name"
+        :radius="8"
+        :lat-lng="[store.lat, store.lng]"
+        :fill="true"
+        :color="'#009933'"
+        :fillColor="'#009933'"
+        :fillOpacity="1"
+        @click="onClickImage(store.lot)"></l-circle>
     </l-map>
     <div>
         <q-btn
@@ -99,6 +110,10 @@ export default {
   data() {
     return {
       action: {
+        editEntry: {
+          active: false,
+          lot_id: '',
+        },
         addLot: {
           isSelectEntrance: false,
           isSelectStartBound: false,
@@ -156,46 +171,71 @@ export default {
     };
   },
   mounted() {
-    firebase.db.collection('LG_Lot').onSnapshot((snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'modified') {
-          // remove from empty lot if store added
-          if (change.doc.data().store_ref) {
-            this.empty_lot = this.empty_lot.filter(
-              (item) => !(item.lot === change.doc.id),
-            );
-          }
-          // eslint-disable-next-line no-console
-          console.log(this.empty_lot);
-        }
+    // firebase.db.collection('LG_Lot').onSnapshot((snapshot) => {
+    //   snapshot.docChanges().forEach((change) => {
+    //     if (change.type === 'modified') {
+    //       // remove from empty lot if store added
+    //       if (change.doc.data().store_ref) {
+    //         this.empty_lot = this.empty_lot.filter(
+    //           (item) => !(item.lot === change.doc.id),
+    //         );
+    //       }
+    //       // eslint-disable-next-line no-console
+    //       console.log(this.empty_lot);
+    //     }
 
-        if (change.type === 'added' || change.type === 'modified') {
-          let storeInfo = {
-            store_name: '',
-            lat: '',
-            lng: '',
-            img_url: '',
-            type: '',
-            lot: '',
-            bounds: [],
-          };
-          storeInfo.lot = change.doc.id;
-          storeInfo = Object.assign(storeInfo, change.doc.data());
+    //     if (change.type === 'added' || change.type === 'modified') {
+    //       let storeInfo = {
+    //         store_name: '',
+    //         lat: '',
+    //         lng: '',
+    //         img_url: '',
+    //         type: '',
+    //         lot: '',
+    //         bounds: [],
+    //       };
+    //       storeInfo.lot = change.doc.id;
+    //       storeInfo = Object.assign(storeInfo, change.doc.data());
 
-          if (storeInfo.store_ref) {
-            storeInfo.store_ref.get().then((storeDoc) => {
-              storeInfo = Object.assign(storeInfo, storeDoc.data());
-              storeInfo.bounds = JSON.parse(storeInfo.bounds);
-              this.stores.push(storeInfo);
-            });
-          } else {
-            this.empty_lot.push(storeInfo); // if lot no store, push to empty
-          }
-        }
-        if (change.type === 'removed') {
-          // eslint-disable-next-line no-console
-          console.log('Removed city: ', change.doc.data());
-          this.success = change.doc.data();
+    //       if (storeInfo.store_ref) {
+    //         storeInfo.store_ref.get().then((storeDoc) => {
+    //           storeInfo = Object.assign(storeInfo, storeDoc.data());
+    //           storeInfo.bounds = JSON.parse(storeInfo.bounds);
+    //           this.stores.push(storeInfo);
+    //         });
+    //       } else {
+    //         this.empty_lot.push(storeInfo); // if lot no store, push to empty
+    //       }
+    //     }
+    //     if (change.type === 'removed') {
+    //       // eslint-disable-next-line no-console
+    //       console.log('Removed city: ', change.doc.data());
+    //       this.success = change.doc.data();
+    //     }
+    //   });
+    // });
+    firebase.db.collection('LG_Lot').get().then((snapshot) => {
+      snapshot.forEach((change) => {
+        let storeInfo = {
+          store_name: '',
+          lat: '',
+          lng: '',
+          img_url: '',
+          type: '',
+          lot: '',
+          bounds: [],
+        };
+        storeInfo.lot = change.id;
+        storeInfo = Object.assign(storeInfo, change.data());
+
+        if (storeInfo.store_ref) {
+          storeInfo.store_ref.get().then((storeDoc) => {
+            storeInfo = Object.assign(storeInfo, storeDoc.data());
+            storeInfo.bounds = JSON.parse(storeInfo.bounds);
+            this.stores.push(storeInfo);
+          });
+        } else {
+          this.empty_lot.push(storeInfo); // if lot no store, push to empty
         }
       });
     });
@@ -203,13 +243,32 @@ export default {
   computed: {
     floorplan() {
       // eslint-disable-next-line global-require
-      return require('../assets/lgFloor.svg');
+      return require('../assets/LgFloor_path.svg');
     },
   },
   methods: {
+    onClickImage(storeId) {
+      this.action.editEntry.lot_id = storeId;
+
+      // eslint-disable-next-line no-console
+      console.log('please select the new entry');
+      this.action.editEntry.active = true;
+    },
     onClickMap(event) {
       // eslint-disable-next-line no-console
       console.log(event);
+
+      if (this.action.editEntry.active) {
+        const storeRef = firebase.db.collection('LG_Lot').doc(this.action.editEntry.lot_id);
+
+        storeRef.update({
+          entrance: [event.latlng.lat, event.latlng.lng],
+        });
+
+        this.action.editEntry.active = false;
+
+        return;
+      }
 
       if (!this.lot.isAddLot) return;
 

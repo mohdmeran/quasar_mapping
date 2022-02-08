@@ -1,7 +1,7 @@
 <template>
     <q-page class="window-height window-width q-pa-lg">
         <!-- eslint-disable-next-line max-len -->
-        <q-btn align="left" class="full-width shadow-4" outline rounded color="primary">
+        <q-btn align="left" class="full-width shadow-4" outline rounded color="primary" @click="onClickSearchButton('')">
             <q-icon left size="1.5em" name="fas fa-search" />
             <!-- eslint-disable-next-line max-len -->
             <div class="text-black">S<span class="text-lowercase">earch stores...</span></div>
@@ -18,8 +18,9 @@
                     class="shadow-3 col"
                     padding="lg"
                     color="primary"
-                    v-for="category in test"
+                    v-for="category in categories"
                     :key="category.name"
+                    @click="onClickSearchButton(category.name)"
                     >
                         <!-- eslint-disable-next-line vue/no-parsing-error -->
                         <q-icon size="1.5em" :name="category.icon" />
@@ -34,36 +35,22 @@
             <h3 class="text-h5 text-bold text-black">Deals</h3>
             <promo-card logo="logo/starbuck_logo.png" store="Starbuck" promoText="50% Off" />
         </div>
+        <search-dialog ref="dialog"/>
     </q-page>
 </template>
 <script>
 import PromoCard from '../components/PromoCard.vue';
+import SearchDialog from '../components/SearchDialog.vue';
 
 export default {
   components: {
     PromoCard,
+    SearchDialog,
   },
   data() {
     return {
       searchModel: '',
       categories: [
-        [
-          { name: 'beauty & wellness', icon: 'fas fa-air-freshener' },
-          { name: 'fashion', icon: 'fas fa-vest-patches' },
-          { name: 'homes', icon: 'fas fa-couch' },
-        ],
-        [
-          { name: 'food & beverages', icon: 'fas fa-hamburger' },
-          { name: 'kids', icon: 'fas fa-child' },
-          { name: 'fun', icon: 'fas fa-futbol' },
-        ],
-        [
-          { name: 'IT & gadget', icon: 'fas fa-power-off' },
-          { name: 'sundry & services', icon: 'fas fa-wrench' },
-          { name: 'store & market', icon: 'fas fa-cash-register' },
-        ],
-      ],
-      test: [
         { name: 'beauty & wellness', icon: 'fas fa-air-freshener' },
         { name: 'fashion', icon: 'fas fa-vest-patches' },
         { name: 'homes', icon: 'fas fa-couch' },
@@ -75,6 +62,12 @@ export default {
         { name: 'store & market', icon: 'fas fa-cash-register' },
       ],
     };
+  },
+  methods: {
+    onClickSearchButton(category) {
+      this.$refs.dialog.filterStore(category);
+      this.$refs.dialog.showDialog();
+    },
   },
 };
 </script>

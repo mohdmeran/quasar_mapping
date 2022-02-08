@@ -42,7 +42,7 @@ module.exports = configure((ctx) => ({
     // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
     'roboto-font', // optional, you are not bound to it
-    // 'material-icons', // optional, you are not bound to it
+    'material-icons', // optional, you are not bound to it
   ],
 
   // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
@@ -82,7 +82,10 @@ module.exports = configure((ctx) => ({
 
   // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
   framework: {
-    config: {},
+    config: {
+      loading: {},
+      notify: {},
+    },
 
     // iconSet: 'material-icons', // Quasar icon set
     // lang: 'en-US', // Quasar language pack
@@ -95,12 +98,13 @@ module.exports = configure((ctx) => ({
     // directives: [],
 
     // Quasar plugins
-    plugins: [],
+    plugins: ['Loading', 'Notify'],
   },
 
   // animations: 'all', // --- includes all animations
   // https://v2.quasar.dev/options/animations
-  animations: [],
+  animations: ['bounceInUp',
+    'bounceOutDown', 'pulse', 'slideInRight', 'slideOutRight'],
 
   // https://v2.quasar.dev/quasar-cli/developing-ssr/configuring-ssr
   ssr: {

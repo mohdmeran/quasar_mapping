@@ -1,5 +1,5 @@
 <template>
-  <q-page class="window-height window-width row justify-center items-end">
+    <q-page class="window-height window-width row justify-center items-end">
     <div class="absolute-center" >
         <svg id="visual" viewBox="0 0 900 600" width="900" height="600" xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
@@ -26,30 +26,14 @@
         </svg>
     </div>
     <div class="column">
-      <div class="row" style="z-index:1000">
-        <h2 class="text-h2 text-primary text-weight-bold q-my-sm">Register</h2>
-      </div>
-      <div class="row">
-        <q-card bordered class="q-pa-lg shadow-3">
-          <q-card-section>
-            <q-form class="q-gutter-md">
-              <q-input clearable v-model="email" type="email" label="email" />
-              <q-input clearable v-model="password" type="password" label="password" />
-              <q-input
-                clearable v-model="confirmPassword" type="password" label="confirm password" />
-            </q-form>
-          </q-card-section>
-          <q-card-actions class="q-px-md">
-            <q-btn unelevated color="primary" size="lg" class="full-width" label="Register" />
-          </q-card-actions>
-          <q-card-section class="text-center q-pa-none">
-            <p class="text-grey-6 q-pt-md">
-                Already have an account?
-                <span class="text-primary text-weight-bold">Sign In</span>
-            </p>
-          </q-card-section>
-        </q-card>
-      </div>
+      <router-view v-slot="{ Component }">
+        <transition
+            appear
+            enter-active-class="animated slideInRight"
+        >
+            <component :is="Component" />
+        </transition>
+        </router-view>
     </div>
     <div class="column" style="z-index:1000">
         <h2 class="text-h2 text-primary text-weight-thin q-my-md">LOKETLA</h2>
@@ -58,26 +42,27 @@
 </template>
 
 <script>
-/* eslint-disable */
+import { defineComponent } from 'vue';
 import KUTE from 'kute.js';
 
-export default {
-  name: 'Login',
+export default defineComponent({
+  name: 'LoginMain',
+
+  setup() {
+  },
   data() {
     return {
-      email: '',
-      password: '',
-      confirmPassword: '',
+
     };
   },
   mounted() {
-      const tween = KUTE.fromTo(
-  '#blob1',
-  { path: '#blob1' },
-  { path: '#blob2' },
-  { repeat: 999, duration: 10000, yoyo: true },
-);
+    const tween = KUTE.fromTo(
+      '#blob1',
+      { path: '#blob1' },
+      { path: '#blob2' },
+      { repeat: 999, duration: 10000, yoyo: true },
+    );
     tween.start();
   },
-};
+});
 </script>
