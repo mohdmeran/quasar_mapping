@@ -127,6 +127,8 @@
         <div class="q-mt-lg q-px-xs">
             <q-btn @click="logout" unelevated color="negative" size="md"
             class="full-width" label="Log out" />
+            <q-btn to="/mapper" unelevated color="negative" size="md"
+            class="full-width" label="Log out" />
         </div>
 
     </q-page>
