@@ -3,8 +3,8 @@ const routes = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/pageHome.vue') },
-      { path: '/map', name: 'pageMap', component: () => import('pages/pageMap.vue') },
+      // { path: '', component: () => import('pages/pageHome.vue') },
+      { path: '', name: 'pageMap', component: () => import('pages/pageMap.vue') },
       { path: '/mapper', component: () => import('pages/pageMapper.vue') },
       { path: '/offers', component: () => import('pages/Offers.vue') },
       { path: '/storeSetup', component: () => import('pages/pageMapper.vue') },

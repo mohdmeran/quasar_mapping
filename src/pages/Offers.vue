@@ -33,12 +33,14 @@
 
         <div>
             <h3 class="text-h5 text-bold text-black">Deals</h3>
-            <promo-card logo="logo/starbuck_logo.png" store="Starbuck" promoText="50% Off" />
+            <promo-card class="q-mt-sm" v-for="deal in deals" :key="deal"
+            :store="deal.store" :promoText="deal.description" />
         </div>
         <search-dialog ref="dialog"/>
     </q-page>
 </template>
 <script>
+import firebase from 'src/boot/firebase';
 import PromoCard from '../components/PromoCard.vue';
 import SearchDialog from '../components/SearchDialog.vue';
 
@@ -61,12 +63,58 @@ export default {
         { name: 'sundry & services', icon: 'fas fa-wrench' },
         { name: 'store & market', icon: 'fas fa-cash-register' },
       ],
+      deals: [],
     };
+  },
+  created() {
+    this.getPromo();
   },
   methods: {
     onClickSearchButton(category) {
       this.$refs.dialog.filterStore(category);
       this.$refs.dialog.showDialog();
+    },
+    getPromo() {
+      firebase.db.collection('Deals').get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+          /** *
+           * description: "LG"
+            img_url: "https://www.midvalley.com.my/img/tenant/logo01Dec2020145820.jpg"
+            store_id: "LG-012"
+           */
+            const dealsInfo = { store: {} };
+
+            Object.assign(dealsInfo, doc.data());
+            dealsInfo.id = doc.id;
+
+            firebase.db.collection('Store').doc(dealsInfo.store_id).get()
+              .then((storeDoc) => {
+                /** *
+                   * floor: "LG"
+                    img_url: "https://www.midvalley.com.my/img/tenant/logo01Dec2020145820.jpg"
+                    lot: "LG-012"
+                    store_name: "Texas Chicken"
+                    type: "Restaurant, Quick Service/ Fast Food"
+                    id: "{id_of_the_store}"
+                  */
+                const storeInfo = {};
+
+                Object.assign(storeInfo, storeDoc.data());
+                storeInfo.id = storeDoc.id;
+                dealsInfo.store = storeInfo;
+                this.deals.push(dealsInfo);
+              })
+              .catch((error) => {
+                // eslint-disable-next-line no-console
+                console.log('Error getting documents: ', error);
+              });
+          });
+        })
+        .catch((error) => {
+        // eslint-disable-next-line no-console
+          console.log('Error getting documents: ', error);
+        });
     },
   },
 };

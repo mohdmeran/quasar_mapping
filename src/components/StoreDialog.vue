@@ -28,10 +28,21 @@
             {{ storeInfo.description ? storeInfo.description : 'Description is not available' }}
           </div>
         </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <h3 class="text-h5 text-bold text-black">Deals</h3>
+
+          <!-- eslint-disable-next-line max-len -->
+          <q-img v-for="deal in deals" :key="deal"
+                :src="deal.img_url"
+                :ratio="1"
+              />
+        </q-card-section>
       </q-card>
     </q-dialog>
 </template>
 <script>
+import firebase from 'src/boot/firebase';
 
 export default {
   props: {
@@ -45,7 +56,11 @@ export default {
   data() {
     return {
       isShow: false,
+      deals: [],
     };
+  },
+  mounted() {
+    this.getPromoDo();
   },
   methods: {
     showDialog() {
@@ -59,6 +74,32 @@ export default {
 
       this.$emit('get-direction', this.storeInfo);
       this.isShow = false;
+    },
+    getPromoDo() {
+      // eslint-disable-next-line no-console
+      console.log(this.storeInfo.id);
+      firebase.db.collection('Deals').where('store_id', '==', String(this.storeInfo.id)).get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+          /** *
+           * description: "LG"
+            img_url: "https://www.midvalley.com.my/img/tenant/logo01Dec2020145820.jpg"
+            store_id: "LG-012"
+           */
+            const dealsInfo = { store: {} };
+
+            Object.assign(dealsInfo, doc.data());
+            dealsInfo.id = doc.id;
+
+            this.deals.push(dealsInfo);
+            // eslint-disable-next-line no-console
+            console.log(dealsInfo);
+          });
+        })
+        .catch((error) => {
+        // eslint-disable-next-line no-console
+          console.log('Error getting documents: ', error);
+        });
     },
   },
 };

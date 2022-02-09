@@ -8,24 +8,6 @@
       :url="floorplan"
       :bounds="[[0, 0], [708, 1993]]"></l-image-overlay>
 
-      <l-circle
-        :visible="position.show"
-        :radius="20"
-        :lat-lng="[position.currentPosition.y, position.currentPosition.x]"
-        :fill="true"
-        :stroke="false"
-        :fillColor="'white'"
-        :fillOpacity=".7"
-      ></l-circle>
-      <l-circle
-        :visible="position.show"
-        :radius="10"
-        :lat-lng="[position.currentPosition.y, position.currentPosition.x]"
-        :fill="true"
-        :color="'#1976D2'"
-        :fillColor="'#1976D2'"
-        :fillOpacity="1"
-      ></l-circle>
       <l-polyline
       :visible="navigation.isNavigate"
       :lat-lngs="polyline.latlngs"
@@ -42,6 +24,27 @@
       :lineCap="polyline.lineCap"
       :lineJoin="polyline.lineJoin">
     </l-polyline>
+
+    <l-circle
+        :visible="position.show"
+        :radius="20"
+        :lat-lng="[position.currentPosition.y, position.currentPosition.x]"
+        :fill="true"
+        :stroke="false"
+        :fillColor="'white'"
+        :fillOpacity=".7"
+        style="z-index:-3000"
+      ></l-circle>
+      <l-circle
+        :visible="position.show"
+        :radius="10"
+        :lat-lng="[position.currentPosition.y, position.currentPosition.x]"
+        :fill="true"
+        :color="'#1976D2'"
+        :fillColor="'#1976D2'"
+        :fillOpacity="1"
+        style="z-index:-3000"
+      ></l-circle>
 
     <l-marker v-if="navigation.isNavigate" :lat-lng="navigation.destination"></l-marker>
     <l-image-overlay
@@ -232,7 +235,7 @@ export default {
   computed: {
     floorplan() {
       // eslint-disable-next-line global-require
-      return require('../assets/LgFloor_path.svg');
+      return require('../assets/LgFloor.svg');
     },
   },
   methods: {
